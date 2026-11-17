@@ -1,0 +1,1365 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>61기 전도폭발 사역 평가표</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=Noto+Serif+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #2D5A8E;
+    --primary-light: #4A7AB5;
+    --accent: #C17F3B;
+    --accent-light: #E8A95A;
+    --bg: #F7F5F0;
+    --bg-card: #FFFFFF;
+    --text: #1A1A2E;
+    --text-muted: #6B7280;
+    --border: #E2DDD5;
+    --section-bg: #EEF3F9;
+    --success: #2D7A4F;
+    --error: #C0392B;
+    --shadow: 0 2px 16px rgba(45,90,142,0.10);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    min-height: -webkit-fill-available; /* iOS 주소창 대응 */
+    padding: 0;
+    padding-bottom: env(safe-area-inset-bottom); /* iPhone 홈바 여백 */
+    -webkit-text-size-adjust: 100%; /* iOS 글자 자동확대 방지 */
+    -webkit-overflow-scrolling: touch; /* iOS 부드러운 스크롤 */
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: linear-gradient(135deg, var(--primary) 0%, #1A3A5C 100%);
+    color: #fff;
+    padding: 36px 24px 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .site-header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(193,127,59,0.18) 0%, transparent 60%);
+    pointer-events: none;
+  }
+  .site-header h1 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    position: relative;
+  }
+  .site-header .subtitle {
+    margin-top: 6px;
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.72);
+    letter-spacing: 1px;
+    position: relative;
+  }
+
+  /* ── NAV TABS ── */
+  .tab-bar {
+    display: flex;
+    justify-content: center;
+    gap: 0;
+    background: var(--primary);
+    border-bottom: 3px solid var(--accent);
+  }
+  .tab-btn {
+    padding: 12px 28px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.65);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 0.93rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all .2s;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -3px;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+  }
+  .tab-btn.active, .tab-btn:hover {
+    color: #fff;
+    border-bottom-color: var(--accent-light);
+    background: rgba(255,255,255,0.08);
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 780px; margin: 0 auto; padding: 36px 20px 60px; }
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--bg-card);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 32px 36px;
+    margin-bottom: 28px;
+    border: 1px solid var(--border);
+  }
+  @media(max-width:600px){ .card { padding: 16px 12px; } }
+
+  .notice {
+    font-size: 0.93rem;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 24px;
+    padding: 16px 18px;
+    background: var(--section-bg);
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-light);
+  }
+
+  /* ── FORM BASICS ── */
+  .form-row {
+    display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;
+  }
+  .form-group { flex: 1; min-width: 200px; }
+  .form-group label {
+    display: block; font-size: 0.85rem; font-weight: 600;
+    color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .form-group input[type=text], .form-group input[type=date], .form-group select, textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    font-family: inherit; font-size: 16px; /* iOS 자동 줌 방지: 16px 필수 */
+    background: #FAFAF8;
+    transition: border-color .2s, box-shadow .2s;
+    outline: none;
+    -webkit-appearance: none; /* iOS 기본 스타일 제거 */
+    appearance: none;
+    color: var(--text);
+  }
+  /* iOS select 화살표 복원 */
+  .form-group select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236B7280' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+  .form-group input:focus, .form-group select:focus, textarea:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(74,122,181,0.15);
+  }
+
+  /* radio group */
+  .radio-group { display: flex; gap: 20px; }
+  .radio-group label {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 0.95rem; font-weight: 400;
+    color: var(--text); cursor: pointer; text-transform: none; letter-spacing: 0;
+    -webkit-tap-highlight-color: transparent; /* iOS 탭 하이라이트 제거 */
+  }
+  .radio-group input[type=radio] { accent-color: var(--primary); width: 16px; height: 16px; }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 1.05rem; font-weight: 600;
+    color: var(--accent);
+    margin: 28px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #F0E8DC;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-title::before {
+    content: '';
+    display: inline-block;
+    width: 5px; height: 18px;
+    background: var(--accent);
+    border-radius: 3px;
+  }
+
+  /* ── RATING ITEM ── */
+  .rating-item {
+    padding: 14px 0;
+    border-bottom: 1px dashed var(--border);
+  }
+  .rating-item:last-child { border-bottom: none; }
+  .rating-item .q-label {
+    font-size: 0.95rem; font-weight: 500;
+    margin-bottom: 10px; line-height: 1.5;
+  }
+  .rating-item .q-label span { color: var(--primary); font-weight: 700; margin-right: 6px; }
+  .rating-scale {
+    display: flex; align-items: center; gap: 0; flex-wrap: nowrap; width: 100%;
+  }
+  .rating-scale .scale-label { display: none; }
+  .rating-scale .numbers {
+    display: flex; gap: 3px; flex: 1; justify-content: center; align-items: center; flex-wrap: nowrap;
+  }
+  .scale-end-label {
+    font-size: 0.72rem; color: var(--text-muted);
+    white-space: normal; font-weight: 600;
+    flex-shrink: 0; padding: 0 5px;
+    max-width: 52px; text-align: center; line-height: 1.3;
+  }
+  .rating-scale input[type=radio] { display: none; }
+  .rating-scale .num-label {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    font-size: 0.75rem; font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    color: var(--text-muted);
+    background: var(--bg);
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .rating-scale input[type=radio]:checked + .num-label {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+    transform: scale(1.12);
+    box-shadow: 0 2px 8px rgba(45,90,142,0.3);
+  }
+  .rating-scale .num-label:hover {
+    border-color: var(--primary-light);
+    background: var(--section-bg);
+    color: var(--primary);
+  }
+  @media (max-width: 480px) {
+    .rating-scale .num-label { width: 24px; height: 24px; font-size: 0.68rem; }
+    .scale-end-label { font-size: 0.62rem; padding: 0 3px; max-width: 40px; }
+    .rating-scale .numbers { gap: 2px; }
+  }
+
+  /* ── NUMBER INPUT ── */
+  .inline-input {
+    border: none; border-bottom: 2px solid var(--primary-light);
+    padding: 2px 8px; width: 60px; text-align: center;
+    font-size: 16px; /* iOS 줌 방지 */
+    font-family: inherit; background: transparent;
+    outline: none;
+    -webkit-appearance: none;
+    border-radius: 0; /* iOS 둥근 모서리 제거 */
+  }
+  .inline-input:focus { border-bottom-color: var(--accent); }
+
+  /* ── TEXTAREA ── */
+  .free-text {
+    width: 100%; padding: 12px 14px;
+    border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 16px; /* iOS 줌 방지 */
+    resize: vertical; min-height: 80px;
+    background: #FAFAF8;
+    margin-top: 8px;
+    transition: border-color .2s;
+    outline: none;
+    -webkit-appearance: none;
+    color: var(--text);
+  }
+  .free-text:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(74,122,181,0.12); }
+
+  .field-label {
+    font-size: 0.93rem; font-weight: 500; margin-bottom: 6px; display: block;
+  }
+  .field-label span { color: var(--primary); font-weight: 700; margin-right: 6px; }
+
+  /* ── SUBMIT BTN ── */
+  .submit-btn {
+    display: block; width: 100%; padding: 15px;
+    background: linear-gradient(135deg, var(--primary) 0%, #1A3A5C 100%);
+    color: #fff; border: none; border-radius: 10px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 1.05rem; font-weight: 600;
+    cursor: pointer; margin-top: 32px;
+    box-shadow: 0 4px 16px rgba(45,90,142,0.25);
+    transition: all .2s; letter-spacing: 0.5px;
+    -webkit-appearance: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(45,90,142,0.35); }
+  .submit-btn:active { transform: translateY(0); }
+  .submit-btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+  /* ── TOAST ── */
+  #toast {
+    position: fixed;
+    bottom: calc(30px + env(safe-area-inset-bottom)); /* iPhone 홈바 대응 */
+    left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #1A3A5C; color: #fff;
+    padding: 14px 28px; border-radius: 40px;
+    font-size: 0.93rem; font-weight: 500;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.2);
+    transition: transform .35s cubic-bezier(.34,1.56,.64,1), opacity .35s;
+    opacity: 0; z-index: 1000;
+    white-space: nowrap;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+  #toast.success { background: var(--success); }
+  #toast.error { background: var(--error); }
+
+  /* ── SPINNER ── */
+  .spinner {
+    display: inline-block; width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff; border-radius: 50%;
+    animation: spin .7s linear infinite; vertical-align: middle; margin-right: 8px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── ADMIN ── */
+  .admin-login {
+    max-width: 420px; margin: 40px auto;
+  }
+  .admin-login h2 {
+    font-family: 'Noto Serif KR', serif; font-size: 1.4rem;
+    color: var(--primary); margin-bottom: 24px; text-align: center;
+  }
+  .admin-table-wrap { overflow-x: auto; margin-top: 16px; }
+  table {
+    width: 100%; border-collapse: collapse;
+    font-size: 0.83rem;
+  }
+  th {
+    background: var(--primary); color: #fff;
+    padding: 10px 8px; text-align: center;
+    white-space: nowrap; font-weight: 600;
+  }
+  td {
+    padding: 8px; border-bottom: 1px solid var(--border);
+    text-align: center; vertical-align: middle;
+    color: var(--text);
+  }
+  tr:nth-child(even) td { background: var(--section-bg); }
+  tr:hover td { background: #E8EFF8; }
+
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--bg-card); border-radius: 10px;
+    padding: 16px 20px; border: 1px solid var(--border);
+    box-shadow: var(--shadow); text-align: center;
+  }
+  .stat-card .stat-num {
+    font-size: 2rem; font-weight: 700; color: var(--primary);
+    font-family: 'Noto Serif KR', serif;
+  }
+  .stat-card .stat-lbl { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
+
+  .admin-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; flex-wrap: wrap; gap: 12px;
+  }
+  .admin-header h2 {
+    font-family: 'Noto Serif KR', serif; font-size: 1.3rem; color: var(--primary);
+  }
+  .btn-sm {
+    padding: 8px 16px; border-radius: 6px; border: none;
+    font-family: inherit; font-size: 0.85rem; font-weight: 500;
+    cursor: pointer; transition: all .2s;
+  }
+  .btn-outline {
+    background: transparent; border: 1.5px solid var(--primary);
+    color: var(--primary);
+  }
+  .btn-outline:hover { background: var(--section-bg); }
+  .btn-danger { background: var(--error); color: #fff; }
+  .loading-msg {
+    text-align: center; padding: 40px; color: var(--text-muted); font-size: 0.95rem;
+  }
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 600;
+  }
+  .badge-trainee { background: #DBEAFE; color: #1E40AF; }
+  .badge-trainer { background: #D1FAE5; color: #065F46; }
+
+
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <h1>전도폭발 사역 평가표</h1>
+  <p class="subtitle">( Ⅰ · Ⅱ · Ⅲ · Ⅳ · Ⅴ 단계 )</p>
+</header>
+
+<nav class="tab-bar">
+  <button class="tab-btn active" onclick="showPage('survey')">📋 설문 작성</button>
+  <button class="tab-btn" onclick="showPage('admin-login')">🔒 관리자</button>
+</nav>
+
+<!-- ═══════════════════════════════ SURVEY PAGE ═══════════════════ -->
+<div class="page active" id="page-survey">
+<div class="container">
+<form id="surveyForm">
+
+  <div class="card">
+    <p class="notice">이 평가표는 모든 참가자가 다 완성해야 합니다. 각 항목 해당 점수에 동그라미 표시를 해서 평가하십시오.</p>
+    <div class="form-row">
+      <div class="form-group" style="position:relative">
+        <label>이름(식별기호 포함)</label>
+        <input type="text" id="name" placeholder="이름 입력 시 자동완성" required
+               autocomplete="off"
+               oninput="filterNames(this.value)"
+               onblur="hideNameDropdown()">
+        <ul id="nameDropdown" style="
+          display:none; position:absolute; z-index:999;
+          left:0; right:0; top:100%;
+          background:#fff; border:1.5px solid var(--primary-light);
+          border-radius:0 0 10px 10px; max-height:220px; overflow-y:auto;
+          margin:0; padding:0; list-style:none;
+          box-shadow:0 8px 24px rgba(45,90,142,0.18);
+        "></ul>
+      </div>
+      <div class="form-group">
+        <label>날짜</label>
+        <input type="date" id="date" required>
+      </div>
+    </div>
+    <div class="form-row" style="flex-wrap:wrap; gap:12px; margin-bottom:16px">
+      <div class="form-group" style="flex:0 0 110px; min-width:0">
+        <label>기수</label>
+        <select id="cohort" required>
+          <option value="61기">61기</option>
+          <option value="62기" selected>62기</option>
+          <option value="63기">63기</option>
+          <option value="64기">64기</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:0 0 150px; min-width:0">
+        <label>반별</label>
+        <select id="class_group" required>
+          <option value="" disabled selected>반 선택</option>
+          <option value="수지주일반">수지주일반</option>
+          <option value="수지화요반">수지화요반</option>
+          <option value="분당주일반">분당주일반</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:0 0 120px; min-width:0">
+        <label>조</label>
+        <select id="group" required>
+          <option value="" disabled selected>조 선택</option>
+          <option value="1조">1조</option>
+          <option value="2조">2조</option>
+          <option value="3조">3조</option>
+          <option value="4조">4조</option>
+          <option value="5조">5조</option>
+          <option value="6조">6조</option>
+          <option value="7조">7조</option>
+          <option value="8조">8조</option>
+          <option value="9조">9조</option>
+          <option value="10조">10조</option>
+          <option value="11조">11조</option>
+        </select>
+      </div>
+      <div class="form-group" style="flex:0 0 150px; min-width:0">
+        <label>단계</label>
+        <select id="stage" required>
+          <option value="" disabled selected>단계 선택</option>
+          <option value="1단계">1단계 (Ⅰ)</option>
+          <option value="2단계">2단계 (Ⅱ)</option>
+          <option value="3단계">3단계 (Ⅲ)</option>
+          <option value="4단계">4단계 (Ⅳ)</option>
+          <option value="5단계">5단계 (Ⅴ)</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group" style="margin-bottom:0">
+      <label>이번 학기에 나는</label>
+      <div class="radio-group" style="margin-top:10px">
+        <label><input type="radio" name="role" value="훈련생" required> 훈련생</label>
+        <label><input type="radio" name="role" value="훈련자"> 훈련자</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 교실 수업 -->
+  <div class="card">
+    <div class="section-title">교실 수업</div>
+
+    <div id="class-ratings"></div>
+  </div>
+
+  <!-- 훈련 전체 -->
+  <div class="card">
+    <div class="section-title">훈련 전체</div>
+    <div id="training-ratings"></div>
+  </div>
+
+  <!-- 전도의 생활화 -->
+  <div class="card">
+    <div class="section-title">전도의 생활화</div>
+
+    <div class="rating-item">
+      <div class="q-label"><span>1.</span> 전도의 생활화의 무장</div>
+      <div class="rating-scale">
+        <div class="numbers" id="q-lifestyle-1"></div>
+      </div>
+    </div>
+
+    <div class="rating-item" style="border-bottom:none">
+      <p class="field-label"><span>2.</span> 이번 훈련기간 중 정규 현장실습 이외에 일상생활에서 비신자에게 복음제시를</p>
+      <p style="font-size:0.93rem; margin-top:6px">
+        <input type="number" class="inline-input" id="q-lifestyle-2" min="0" max="99" inputmode="numeric" placeholder="0"> 번 했다
+      </p>
+    </div>
+  </div>
+
+  <!-- 현장실습 -->
+  <div class="card">
+    <div class="section-title">현장실습</div>
+
+    <div class="rating-item">
+      <p class="field-label"><span>1.</span> 나는 이번 학기 현장실습에
+        <input type="number" class="inline-input" id="q-field-1" min="0" max="99" inputmode="numeric" placeholder="0"> 번 참석했다.</p>
+    </div>
+    <div class="rating-item">
+      <p class="field-label"><span>2.</span> 나는 현장실습에서 전체 복음제시를
+        <input type="number" class="inline-input" id="q-field-2" min="0" max="99" inputmode="numeric" placeholder="0"> 번 했다.</p>
+    </div>
+    <div class="rating-item">
+      <p class="field-label"><span>3.</span> 나의 팀(조)은 7일 후 재방문을
+        <input type="number" class="inline-input" id="q-field-3" min="0" max="99" inputmode="numeric" placeholder="0"> 번 했다.</p>
+    </div>
+    <div class="rating-item">
+      <p class="field-label"><span>4.</span> 나의 팀(조)은 결신자를 얻은 보고를
+        <input type="number" class="inline-input" id="q-field-4" min="0" max="99" inputmode="numeric" placeholder="0"> 번 했다.</p>
+    </div>
+
+    <div class="rating-item" style="border-bottom:none">
+      <p class="field-label"><span>5.</span> 나의 팀(조)은 현장실습에서 아래와 같은 경험을 하였다.</p>
+      <div style="margin-top:8px; padding-left:12px">
+        <label class="field-label" style="font-size:0.88rem; color:var(--text-muted)">1) 특별히 유익했던 경험</label>
+        <textarea class="free-text" id="q-field-5a" rows="3" placeholder="내용을 입력하세요..."></textarea>
+        <label class="field-label" style="font-size:0.88rem; color:var(--text-muted); margin-top:12px">2) 특별히 난처했던 경험과 하나님께서 현장실습에서 주셨던 지혜들</label>
+        <textarea class="free-text" id="q-field-5b" rows="3" placeholder="내용을 입력하세요..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- 나의 훈련자 -->
+  <div class="card">
+    <div class="section-title">나의 훈련자</div>
+
+    <div class="form-row" style="margin-bottom:20px">
+      <div class="form-group">
+        <label>훈련자 이름(1)</label>
+        <input type="text" id="my-trainer" placeholder="훈련자 이름(1)">
+      </div>
+      <div class="form-group">
+        <label>훈련자 이름(2)</label>
+        <input type="text" id="trainer-name" placeholder="훈련자 이름(2)">
+      </div>
+    </div>
+
+    <div id="trainer-ratings"></div>
+
+    <div class="rating-item" style="border-bottom:none; margin-top:16px">
+      <p class="field-label"><span>3.</span> 현장실습 지침대로 내가 매주 점진적으로 복음제시에</p>
+      <div class="radio-group" style="margin-top:10px">
+        <label><input type="radio" name="q-trainer-3" value="참여"> ☑ 참여케 했다</label>
+        <label><input type="radio" name="q-trainer-3" value="미참여"> ☐ 그렇게 못했다</label>
+      </div>
+      <div style="margin-top:12px; padding-left:8px">
+        <p class="field-label" style="font-size:0.88rem; color:var(--text-muted)">● 그렇게 못한 이유는:</p>
+        <label class="field-label" style="font-size:0.85rem; margin-top:8px">① <input type="text" class="form-group" style="width:90%;border:none;border-bottom:1.5px solid var(--border);background:transparent;padding:3px 6px;font-family:inherit;outline:none" id="q-trainer-reason1" placeholder="이유 1"></label>
+        <label class="field-label" style="font-size:0.85rem; margin-top:8px">② <input type="text" class="form-group" style="width:90%;border:none;border-bottom:1.5px solid var(--border);background:transparent;padding:3px 6px;font-family:inherit;outline:none" id="q-trainer-reason2" placeholder="이유 2"></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 기도 후원자들 -->
+  <div class="card">
+    <div class="section-title">기도 후원자들</div>
+
+    <div class="form-row" style="margin-bottom:16px">
+      <div class="form-group">
+        <label>이름 1</label>
+        <input type="text" id="prayer-1" placeholder="기도 후원자 이름">
+      </div>
+      <div class="form-group">
+        <label>이름 2</label>
+        <input type="text" id="prayer-2" placeholder="기도 후원자 이름">
+      </div>
+    </div>
+
+    <div class="rating-item">
+      <p class="field-label"><span>1.</span> 나는 이번 훈련학기 동안에 기도 후원자들과
+        <input type="number" class="inline-input" id="q-prayer-1" min="0" max="99" inputmode="numeric" placeholder="0"> 번 접촉해서 함께 기도했다.</p>
+    </div>
+
+    <div class="rating-item" style="border-bottom:none">
+      <div class="q-label"><span>2.</span> 기도 후원자들과의 관계는</div>
+      <div class="rating-scale">
+        <div class="numbers" id="q-prayer-2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 출석 -->
+  <div class="card">
+    <div class="section-title">출석</div>
+
+    <div class="rating-item">
+      <p class="field-label"><span>1.</span> 이번 훈련학기에 나는
+        <input type="number" class="inline-input" id="q-attend-1" min="0" max="99" inputmode="numeric" placeholder="0"> 번 결석 했다.</p>
+    </div>
+    <div class="rating-item" style="border-bottom:none">
+      <label class="field-label"><span>2.</span> 결석한 이유는?</label>
+      <textarea class="free-text" id="q-attend-2" rows="3" placeholder="결석 이유를 입력하세요..."></textarea>
+    </div>
+  </div>
+
+  <!-- 감사 -->
+  <div class="card">
+    <div class="section-title">감사</div>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px">(이번 학기에 훈련을 받은 후 하나님께 감사 할 내용)</p>
+
+    <div class="form-group" style="margin-bottom:14px">
+      <label>1</label>
+      <input type="text" id="q-thanks-1" placeholder="감사 내용 1">
+    </div>
+    <div class="form-group">
+      <label>2</label>
+      <input type="text" id="q-thanks-2" placeholder="감사 내용 2">
+    </div>
+  </div>
+
+  <!-- 제안 -->
+  <div class="card">
+    <div class="section-title">제안</div>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px">(사역의 발전을 위한 제안)</p>
+
+    <div class="form-group" style="margin-bottom:14px">
+      <label>1</label>
+      <textarea id="q-suggest-1" placeholder="제안 1"
+        style="width:100%;height:120px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:0.95rem;background:#FAFAF8;resize:vertical;outline:none;transition:border-color .2s;"
+        onfocus="this.style.borderColor='var(--primary-light)'"
+        onblur="this.style.borderColor='var(--border)'"></textarea>
+    </div>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>2</label>
+      <textarea id="q-suggest-2" placeholder="제안 2"
+        style="width:100%;height:120px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:0.95rem;background:#FAFAF8;resize:vertical;outline:none;transition:border-color .2s;"
+        onfocus="this.style.borderColor='var(--primary-light)'"
+        onblur="this.style.borderColor='var(--border)'"></textarea>
+    </div>
+    <div class="form-group">
+      <label>3</label>
+      <textarea id="q-suggest-3" placeholder="제안 3"
+        style="width:100%;height:120px;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:0.95rem;background:#FAFAF8;resize:vertical;outline:none;transition:border-color .2s;"
+        onfocus="this.style.borderColor='var(--primary-light)'"
+        onblur="this.style.borderColor='var(--border)'"></textarea>
+    </div>
+  </div>
+
+  <p style="text-align:center; font-size:0.92rem; color:var(--text-muted); line-height:1.7; margin-bottom:16px; padding: 16px 20px; background:var(--section-bg); border-radius:10px; border-left: 4px solid var(--accent);">
+    작성해주신 소중한 의견은 다음 학기 운영에 적극 반영할 수 있도록 참고하겠습니다. 감사합니다.
+  </p>
+
+  <!-- 자동저장 상태 표시 -->
+  <div id="autoSaveBar" style="
+    display:none; margin-bottom:12px; padding:10px 16px;
+    background:#F0FDF4; border:1.5px solid #86EFAC; border-radius:8px;
+    font-size:0.83rem; color:#166534;
+    align-items:center; justify-content:space-between; gap:8px;
+  ">
+    <span id="autoSaveMsg">💾 자동저장됨</span>
+    <a href="#" onclick="loadDraft();return false;"
+       style="color:var(--primary);font-weight:600;font-size:0.82rem;text-decoration:none;">불러오기</a>
+    <a href="#" onclick="deleteDraft();return false;"
+       style="color:#C0392B;font-weight:600;font-size:0.82rem;text-decoration:none;">삭제</a>
+  </div>
+
+  <button type="submit" class="submit-btn" id="submitBtn">설문 제출하기</button>
+</form>
+</div>
+</div>
+
+<!-- ═══════════════════════════════ ADMIN LOGIN ═══════════════════ -->
+<div class="page" id="page-admin-login">
+<div class="container">
+  <div class="card admin-login">
+    <h2>🔒 관리자 로그인</h2>
+    <div class="form-group" style="margin-bottom:14px">
+      <label>관리자 비밀번호</label>
+      <input type="password" id="adminPw" placeholder="비밀번호를 입력하세요" onkeydown="if(event.key==='Enter')adminLogin()">
+    </div>
+    <button class="submit-btn" onclick="adminLogin()">로그인</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════════════════════ ADMIN DASHBOARD ════════════════ -->
+<div class="page" id="page-admin">
+<div class="container">
+  <div class="card">
+    <div class="admin-header">
+      <h2>📊 응답 현황</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <select id="adminCohort" onchange="loadAdminData()" style="padding:6px 10px;border:1.5px solid var(--primary);border-radius:6px;font-family:inherit;font-size:0.85rem;color:var(--primary)">
+          <option value="61기">61기</option>
+          <option value="62기" selected>62기</option>
+          <option value="63기">63기</option>
+          <option value="64기">64기</option>
+        </select>
+        <button class="btn-sm btn-outline" onclick="loadAdminData()">🔄 새로고침</button>
+        <button class="btn-sm btn-outline" onclick="exportCSV()">⬇ CSV 내보내기</button>
+        <button class="btn-sm btn-danger" onclick="adminLogout()">로그아웃</button>
+      </div>
+    </div>
+    <div class="stat-grid" id="statsGrid"></div>
+    <div id="adminExtra"></div>
+    <div class="admin-table-wrap">
+      <div class="loading-msg" id="adminLoading">데이터를 불러오는 중...</div>
+      <table id="adminTable" style="display:none">
+        <thead id="adminThead"></thead>
+        <tbody id="adminTbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════ SCRIPT ═══════════════════════════════ -->
+<script>
+/* ══════════════════════════════════════════════
+   ⚙️  CONFIGURATION  —  여기에 설정값을 입력하세요
+   ══════════════════════════════════════════════ */
+const CONFIG = {
+  APPS_SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbx8RG43T1fMkCVkpTVGv-tzs8b5RV3rJRvUn8sQv9T8xIq4wkJmQH9tOciL3gRozzB1/exec'
+  // 관리자 비밀번호는 코드에 두지 않습니다. 로그인 시 입력한 값을 서버(GAS)가 검증합니다.
+};
+
+/* HTML 이스케이프 (관리자 테이블 XSS 방지) */
+function esc(v) {
+  return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function todayLocal() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+
+/* ══════════════════════════════════════════════
+   멤버 데이터 (이름 자동완성)
+   ══════════════════════════════════════════════ */
+const MEMBERS = [
+  { name: '송유미B',  stage: '1단계', group: '1조' },
+  { name: '신유경B',  stage: '1단계', group: '2조' },
+  { name: '강동우C',  stage: '1단계', group: '3조' },
+  { name: '이지연BN', stage: '1단계', group: '4조' },
+  { name: '강영미B',  stage: '1단계', group: '5조' },
+  { name: '조은진C',  stage: '1단계', group: '6조' },
+  { name: '이희자A',  stage: '1단계', group: '7조' },
+  { name: '정현주R',  stage: '1단계', group: '8조' },
+  { name: '김진우AC', stage: '1단계', group: '9조' },
+  { name: '김정옥AA', stage: '1단계', group: '10조' },
+  { name: '최정화C',  stage: '1단계', group: '11조' },
+  { name: '신대용A',  stage: '2단계', group: '2조' },
+  { name: '배현주G',  stage: '2단계', group: '3조' },
+  { name: '이나경J',  stage: '2단계', group: '4조' },
+  { name: '박길순A',  stage: '2단계', group: '5조' },
+  { name: '안희정D',  stage: '2단계', group: '6조' },
+  { name: '김용대D',  stage: '2단계', group: '7조' },
+  { name: '김희정AO', stage: '2단계', group: '8조' },
+  { name: '이선영AP', stage: '2단계', group: '10조' },
+  { name: '박희철A',  stage: '2단계', group: '11조' },
+  { name: '이지영CA', stage: '3단계', group: '1조' },
+  { name: '임원기B',  stage: '3단계', group: '4조' },
+  { name: '윤성원C',  stage: '3단계', group: '5조' },
+  { name: '김성현F',  stage: '3단계', group: '8조' },
+  { name: '임주현A',  stage: '3단계', group: '9조' },
+  { name: '김윤희P',  stage: '3단계', group: '11조' },
+  { name: '신명순C',  stage: '4단계', group: '2조' },
+  { name: '이미경BA', stage: '4단계', group: '3조' },
+  { name: '성기현B',  stage: '4단계', group: '6조' },
+  { name: '김혁주E',  stage: '5단계', group: '1조' },
+  { name: '안현주C',  stage: '5단계', group: '7조' },
+  { name: '박선영R',  stage: '5단계', group: '9조' },
+];
+
+function filterNames(val) {
+  const dropdown = document.getElementById('nameDropdown');
+  const keyword  = val.trim();
+  if (!keyword) { dropdown.style.display = 'none'; return; }
+
+  const filtered = MEMBERS.filter(m => m.name.includes(keyword));
+  if (!filtered.length) { dropdown.style.display = 'none'; return; }
+
+  dropdown.innerHTML = filtered.map(m => `
+    <li onmousedown="event.preventDefault()" onclick="selectName('${esc(m.name)}')"
+        style="padding:12px 14px; cursor:pointer; font-size:0.92rem;
+               border-bottom:1px solid var(--border);
+               display:flex; justify-content:space-between; align-items:center;
+               -webkit-tap-highlight-color:transparent;">
+      <span style="font-weight:600; color:var(--text)">${esc(m.name)}</span>
+      <span style="font-size:0.76rem; color:var(--text-muted); background:var(--section-bg);
+                   padding:2px 8px; border-radius:20px;">${m.group} · ${m.stage}</span>
+    </li>`).join('');
+
+  dropdown.querySelectorAll('li').forEach(li => {
+    li.addEventListener('mouseover', () => li.style.background = 'var(--section-bg)');
+    li.addEventListener('mouseout',  () => li.style.background = '');
+  });
+
+  dropdown.style.display = 'block';
+}
+
+function selectName(name) {
+  document.getElementById('name').value = name;
+  document.getElementById('nameDropdown').style.display = 'none';
+  const m = MEMBERS.find(m => m.name === name);
+  if (!m) return;
+  document.getElementById('group').value        = m.group;
+  document.getElementById('stage').value        = m.stage;
+}
+
+function hideNameDropdown() {
+  setTimeout(() => {
+    const d = document.getElementById('nameDropdown');
+    if (d) d.style.display = 'none';
+  }, 150);
+}
+
+/* ══════════════════════════════════════════════
+   DATA
+   ══════════════════════════════════════════════ */
+const classQuestions = [
+  { id: 'q-class-1', label: '강의 내용(단계별 수업)', left: '빈약했다', right: '훌륭했다' },
+  { id: 'q-class-2', label: '교사의 전달(단계별 수업)', left: '빈약했다', right: '훌륭했다' },
+  { id: 'q-class-3', label: '시범자의 전달과 학습효과', left: '빈약했다', right: '훌륭했다' },
+  { id: 'q-class-4', label: '훈련 중 연습시간', left: '너무 적었다', right: '충분했다' },
+  { id: 'q-class-5', label: '공개보고시간', left: '도움이 안 되었다', right: '도움이 많았다' },
+];
+const trainingQuestions = [
+  { id: 'q-train-1', label: '개인전도자로 무장됨', left: '도움이 안 되었다', right: '도움이 많았다' },
+  { id: 'q-train-2', label: '전도팀 대원 간의 관계', left: '빈약했다', right: '훌륭했다' },
+  { id: 'q-train-3', label: '현장실습', left: '빈약했다', right: '훌륭했다' },
+];
+const trainerQuestions = [
+  { id: 'q-trainer-1', label: '내가 복음제시를 익히는 데', left: '도움을 못 주었다', right: '큰 도움을 주었다' },
+  { id: 'q-trainer-2', label: '내가 무장되도록 구체적인', left: '도움을 못 주었다', right: '큰 도움을 주었다' },
+];
+
+/* ══════════════════════════════════════════════
+   BUILD RATING UI
+   ══════════════════════════════════════════════ */
+function buildRatingGroup(questions, containerId) {
+  const container = document.getElementById(containerId);
+  questions.forEach((q, qi) => {
+    const item = document.createElement('div');
+    item.className = 'rating-item';
+    item.innerHTML = `
+      <div class="q-label"><span>${qi + 1}.</span> ${q.label}</div>
+      <div class="rating-scale">
+        <div class="numbers" id="${q.id}" data-left="${q.left}" data-right="${q.right}"></div>
+      </div>`;
+    container.appendChild(item);
+    buildNumbers(q.id, q.id, q.left, q.right);
+  });
+}
+
+function buildNumbers(containerId, name, leftLabel, rightLabel) {
+  const wrap = document.getElementById(containerId);
+  let html = '';
+  for (let i = 1; i <= 10; i++) {
+    const id = `${name}-${i}`;
+    if (i === 1 && leftLabel) {
+      html += `<span class="scale-end-label">${leftLabel}</span>`;
+    }
+    html += `
+      <input type="radio" name="${name}" id="${id}" value="${i}">
+      <label class="num-label" for="${id}">${i}</label>`;
+    if (i === 10 && rightLabel) {
+      html += `<span class="scale-end-label">${rightLabel}</span>`;
+    }
+  }
+  wrap.innerHTML = html;
+}
+
+/* ══════════════════════════════════════════════
+   PAGE NAVIGATION
+   ══════════════════════════════════════════════ */
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const idx = ['survey','admin-login','admin'].indexOf(name);
+  document.querySelectorAll('.tab-btn')[Math.min(idx, 1)]?.classList.add('active');
+}
+
+/* ══════════════════════════════════════════════
+   TOAST
+   ══════════════════════════════════════════════ */
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.className = 'show ' + type;
+  t.textContent = msg;
+  setTimeout(() => { t.className = ''; }, 3200);
+}
+
+/* ══════════════════════════════════════════════
+   GET RATING VALUE
+   ══════════════════════════════════════════════ */
+function getRating(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : '';
+}
+
+/* ══════════════════════════════════════════════
+   SUBMIT
+   ══════════════════════════════════════════════ */
+document.getElementById('surveyForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  // 평점 필드 검증
+  const required = [...classQuestions, ...trainingQuestions].map(q => q.id);
+  required.push('q-lifestyle-1', 'q-prayer-2');
+  if (getRating('role') === '훈련생') required.push('q-trainer-1', 'q-trainer-2');
+  const missing = required.filter(id => !getRating(id));
+  if (missing.length) {
+    showToast('모든 평점 항목을 선택해 주세요.', 'error');
+    return;
+  }
+
+  const dupKey = document.getElementById('cohort').value + '|' + document.getElementById('name').value.trim() + '|' + document.getElementById('date').value;
+  const done = JSON.parse(localStorage.getItem('ee_submitted') || '[]');
+  if (done.includes(dupKey) && !confirm('이 기기에서 같은 이름·날짜로 이미 제출했습니다. 다시 제출할까요?')) return;
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> 제출 중...';
+
+  const payload = {
+    timestamp: new Date().toLocaleString('ko-KR'),
+    cohort: document.getElementById('cohort').value,   // 기수 → 시트 탭 "{기수}_평가표응답"
+    class_group: document.getElementById('class_group').value,
+    stage: document.getElementById('stage').value,
+    group: document.getElementById('group').value,
+    name: document.getElementById('name').value,
+    date: document.getElementById('date').value,
+    role: getRating('role'),
+    // 교실수업
+    class_1: getRating('q-class-1'),
+    class_2: getRating('q-class-2'),
+    class_3: getRating('q-class-3'),
+    class_4: getRating('q-class-4'),
+    class_5: getRating('q-class-5'),
+    // 훈련 전체
+    train_1: getRating('q-train-1'),
+    train_2: getRating('q-train-2'),
+    train_3: getRating('q-train-3'),
+    // 전도 생활화
+    lifestyle_1: getRating('q-lifestyle-1'),
+    lifestyle_2: document.getElementById('q-lifestyle-2').value,
+    // 현장실습
+    field_1: document.getElementById('q-field-1').value,
+    field_2: document.getElementById('q-field-2').value,
+    field_3: document.getElementById('q-field-3').value,
+    field_4: document.getElementById('q-field-4').value,
+    field_5a: document.getElementById('q-field-5a').value,
+    field_5b: document.getElementById('q-field-5b').value,
+    // 훈련자
+    my_trainer: document.getElementById('my-trainer').value,
+    trainer_name: document.getElementById('trainer-name').value,
+    trainer_1: getRating('q-trainer-1'),
+    trainer_2: getRating('q-trainer-2'),
+    trainer_3: getRating('q-trainer-3'),
+    trainer_reason1: document.getElementById('q-trainer-reason1').value,
+    trainer_reason2: document.getElementById('q-trainer-reason2').value,
+    // 기도 후원자
+    prayer_name1: document.getElementById('prayer-1').value,
+    prayer_name2: document.getElementById('prayer-2').value,
+    prayer_1: document.getElementById('q-prayer-1').value,
+    prayer_2: getRating('q-prayer-2'),
+    // 출석
+    absent: document.getElementById('q-attend-1').value,
+    absent_reason: document.getElementById('q-attend-2').value,
+    // 감사
+    thanks_1: document.getElementById('q-thanks-1').value,
+    thanks_2: document.getElementById('q-thanks-2').value,
+    // 제안
+    suggest_1: document.getElementById('q-suggest-1').value,
+    suggest_2: document.getElementById('q-suggest-2').value,
+    suggest_3: document.getElementById('q-suggest-3').value,
+  };
+
+  if (CONFIG.APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    // ── DEMO MODE (Apps Script URL 미설정 시) ──
+    await new Promise(r => setTimeout(r, 1200));
+    const stored = JSON.parse(localStorage.getItem('ee_survey_data') || '[]');
+    stored.push(payload);
+    localStorage.setItem('ee_survey_data', JSON.stringify(stored));
+    showToast('✅ 제출 완료! (데모 저장)', 'success');
+    this.reset();
+    btn.disabled = false;
+    btn.textContent = '설문 제출하기';
+    return;
+  }
+
+  try {
+    // text/plain(단순 요청)이라 preflight 없이 GAS 응답을 읽을 수 있음
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    let ok = res.ok;
+    try { const j = await res.json(); if (j && (j.error || j.success === false || j.ok === false)) ok = false; } catch(_) {}
+    if (!ok) throw new Error('서버 응답 오류');
+    done.push(dupKey);
+    localStorage.setItem('ee_submitted', JSON.stringify(done));
+    localStorage.removeItem(DRAFT_KEY);
+    document.getElementById('autoSaveBar').style.display = 'none';
+    showToast('✅ 설문이 성공적으로 제출되었습니다!', 'success');
+    this.reset();
+    document.getElementById('date').value = todayLocal();
+  } catch (err) {
+    // 실패 시 폼 내용 유지 + 임시저장
+    saveDraft(true);
+    showToast('❌ 제출 확인 실패. 내용은 유지됩니다. 다시 시도해 주세요.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '설문 제출하기';
+  }
+});
+
+/* ══════════════════════════════════════════════
+   ADMIN
+   ══════════════════════════════════════════════ */
+let adminRows = [];
+
+let adminPwValue = '';
+async function adminLogin() {
+  adminPwValue = document.getElementById('adminPw').value;
+  if (!adminPwValue) { showToast('비밀번호를 입력하세요.', 'error'); return; }
+  const ok = await loadAdminData();
+  if (ok) showPage('admin');
+  else adminPwValue = '';
+}
+function adminLogout() {
+  adminPwValue = '';
+  document.getElementById('adminPw').value = '';
+  document.getElementById('adminTbody').innerHTML = '';
+  document.getElementById('adminExtra').innerHTML = '';
+  _allRows = [];
+  showPage('admin-login');
+}
+
+async function loadAdminData() {
+  document.getElementById('adminLoading').textContent = '데이터를 불러오는 중...';
+  document.getElementById('adminLoading').style.display = 'block';
+  document.getElementById('adminTable').style.display = 'none';
+  document.getElementById('statsGrid').innerHTML = '';
+  document.getElementById('adminExtra').innerHTML = '';
+
+  if (CONFIG.APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    const stored = JSON.parse(localStorage.getItem('ee_survey_data') || '[]');
+    renderAdminDashboard(stored);
+    return true;
+  }
+
+  try {
+    const res  = await fetch(
+      CONFIG.APPS_SCRIPT_URL + '?pw=' + encodeURIComponent(adminPwValue) + '&cohort=' + encodeURIComponent((document.getElementById('adminCohort') || {}).value || '62기'),
+      { cache: 'no-store' }
+    );
+    const data = await res.json();
+    if (data.error) { showToast('⚠️ ' + data.error, 'error'); return false; }
+    renderAdminDashboard(data.rows || data);
+    return true;
+  } catch(e) {
+    showToast('❌ 데이터 로드 실패: ' + e.message, 'error');
+    document.getElementById('adminLoading').textContent = '데이터를 불러올 수 없습니다.';
+    return false;
+  }
+}
+
+const COLUMNS = [
+  { key: 'timestamp', label: '제출시각' },
+  { key: 'class_group', label: '반별' },
+  { key: 'stage', label: '단계' },
+  { key: 'group', label: '조' },
+  { key: 'name', label: '이름' },
+  { key: 'date', label: '날짜' },
+  { key: 'role', label: '역할' },
+  { key: 'class_1', label: '강의내용' },
+  { key: 'class_2', label: '교사전달' },
+  { key: 'class_3', label: '시범자' },
+  { key: 'class_4', label: '연습시간' },
+  { key: 'class_5', label: '공개보고' },
+  { key: 'train_1', label: '전도자무장' },
+  { key: 'train_2', label: '팀원관계' },
+  { key: 'train_3', label: '현장실습' },
+  { key: 'lifestyle_1', label: '생활화무장' },
+  { key: 'lifestyle_2', label: '비신자제시' },
+  { key: 'field_1', label: '실습참석' },
+  { key: 'field_2', label: '복음제시횟수' },
+  { key: 'field_3', label: '재방문' },
+  { key: 'field_4', label: '결신자보고' },
+  { key: 'prayer_1', label: '기도접촉' },
+  { key: 'prayer_2', label: '기도관계' },
+  { key: 'absent', label: '결석횟수' },
+  { key: 'thanks_1', label: '감사1' },
+  { key: 'suggest_1', label: '제안1' },
+];
+
+let _allRows = [];
+
+function renderAdminDashboard(rows) {
+  _allRows = rows;
+  document.getElementById('adminLoading').style.display = 'none';
+
+  // ── 통계 카드 ──
+  const trainee  = rows.filter(r => r.role === '훈련생').length;
+  const trainer  = rows.filter(r => r.role === '훈련자').length;
+  // 재방문·결신자 보고는 "팀(조)" 단위 응답이므로, 반+조별 최댓값만 합산해 중복 집계 방지
+  const teamMax = key => {
+    const m = {};
+    rows.forEach(r => { const k = (r.class_group||'') + '|' + (r.group||''); m[k] = Math.max(m[k]||0, +r[key]||0); });
+    return Object.values(m).reduce((a,b)=>a+b, 0);
+  };
+  const converts = teamMax('field_4');
+  const visits   = teamMax('field_3');
+  document.getElementById('statsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-num">${rows.length}</div><div class="stat-lbl">전체 응답</div></div>
+    <div class="stat-card"><div class="stat-num">${trainee}</div><div class="stat-lbl">훈련생</div></div>
+    <div class="stat-card"><div class="stat-num">${trainer}</div><div class="stat-lbl">훈련자</div></div>
+    <div class="stat-card"><div class="stat-num">${converts}</div><div class="stat-lbl">총 결신자(조별)</div></div>
+    <div class="stat-card"><div class="stat-num">${visits}</div><div class="stat-lbl">총 재방문(조별)</div></div>
+  `;
+
+  // ── 평균 평점 ──
+  const rKeys = {
+    class_1:'강의내용', class_2:'교사전달', class_3:'시범자전달',
+    class_4:'연습시간', class_5:'공개보고',
+    train_1:'전도자무장', train_2:'팀원관계', train_3:'현장실습'
+  };
+  let avgHtml = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">';
+  Object.entries(rKeys).forEach(([k,lbl]) => {
+    const vals = rows.map(r=>parseFloat(r[k])).filter(v=>!isNaN(v)&&v>0);
+    const avg  = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '-';
+    avgHtml += `<div style="background:var(--section-bg);border-radius:8px;padding:8px 14px;
+      border:1px solid var(--border);text-align:center;min-width:80px">
+      <div style="font-size:1.3rem;font-weight:700;color:var(--primary)">${avg}</div>
+      <div style="font-size:0.7rem;color:var(--text-muted)">${lbl}</div>
+    </div>`;
+  });
+  avgHtml += '</div>';
+
+  // ── 필터 ──
+  const filterHtml = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+      <select id="fStage" onchange="applyFilter()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.83rem">
+        <option value="">전체 단계</option>
+        ${['1단계','2단계','3단계','4단계','5단계'].map(v=>`<option>${v}</option>`).join('')}
+      </select>
+      <select id="fGroup" onchange="applyFilter()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.83rem">
+        <option value="">전체 조</option>
+        ${Array.from({length:11},(_,i)=>`<option value="${i+1}조">${i+1}조</option>`).join('')}
+      </select>
+      <select id="fRole" onchange="applyFilter()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.83rem">
+        <option value="">전체 역할</option>
+        <option>훈련생</option><option>훈련자</option>
+      </select>
+      <span id="fCount" style="font-size:0.82rem;color:var(--text-muted)"></span>
+    </div>`;
+
+  document.getElementById('adminExtra').innerHTML = avgHtml + filterHtml;
+
+  if (!rows.length) {
+    document.getElementById('adminLoading').textContent = '아직 제출된 응답이 없습니다.';
+    document.getElementById('adminLoading').style.display = 'block';
+    return;
+  }
+  applyFilter();
+}
+
+function applyFilter() {
+  const stage = (document.getElementById('fStage')||{}).value || '';
+  const group = (document.getElementById('fGroup')||{}).value || '';
+  const role  = (document.getElementById('fRole') ||{}).value || '';
+  const filtered = _allRows.filter(r =>
+    (!stage || r.stage === stage) &&
+    (!group || r.group === group) &&
+    (!role  || r.role  === role)
+  );
+  const fc = document.getElementById('fCount');
+  if (fc) fc.textContent = `${filtered.length}건 표시`;
+  renderAdminTable(filtered);
+}
+
+function renderAdminTable(rows) {
+  adminRows = rows;
+  const thead = document.getElementById('adminThead');
+  const tbody = document.getElementById('adminTbody');
+
+  thead.innerHTML = '<tr>' + COLUMNS.map(c=>`<th>${c.label}</th>`).join('') + '</tr>';
+  tbody.innerHTML = rows.map(row=>`
+    <tr>${COLUMNS.map(c=>{
+      if(c.key==='role') return `<td><span class="badge ${row[c.key]==='훈련생'?'badge-trainee':'badge-trainer'}">${esc(row[c.key]||'-')}</span></td>`;
+      const v = row[c.key];
+      return `<td>${(v!==undefined&&v!==null&&v!=='') ? esc(v) : '-'}</td>`;
+    }).join('')}</tr>`).join('');
+
+  document.getElementById('adminTable').style.display = rows.length ? 'table' : 'none';
+  if (!rows.length) {
+    document.getElementById('adminLoading').textContent = '조건에 맞는 응답이 없습니다.';
+    document.getElementById('adminLoading').style.display = 'block';
+  } else {
+    document.getElementById('adminLoading').style.display = 'none';
+  }
+}
+
+function exportCSV() {
+  if (!adminRows.length) { showToast('내보낼 데이터가 없습니다.', 'error'); return; }
+  const keys = Object.keys(adminRows.reduce((o,r)=>Object.assign(o,r),{}));
+  const label = k => (COLUMNS.find(c=>c.key===k)||{}).label || k;
+  const safe = v => { let t = String(v ?? ''); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; return `"${t.replace(/"/g,'""')}"`; };
+  const headers = keys.map(label).join(',');
+  const rows = adminRows.map(row => keys.map(k => safe(row[k])).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + headers + '\n' + rows], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `전도폭발평가표_${new Date().toLocaleDateString('ko-KR').replace(/\. /g,'-').replace('.','')}.csv`;
+  a.click();
+}
+
+/* ══════════════════════════════════════════════
+   자동저장 (30초마다 + 입력할 때마다)
+   ══════════════════════════════════════════════ */
+const DRAFT_KEY = 'ee_survey_draft';
+
+const DRAFT_FIELDS = [
+  'cohort','class_group','group','stage','name','date',
+  'q-lifestyle-2','q-field-1','q-field-2','q-field-3','q-field-4',
+  'q-field-5a','q-field-5b','my-trainer','trainer-name',
+  'q-trainer-reason1','q-trainer-reason2',
+  'prayer-1','prayer-2','q-prayer-1',
+  'q-attend-1','q-attend-2',
+  'q-thanks-1','q-thanks-2',
+  'q-suggest-1','q-suggest-2','q-suggest-3'
+];
+const DRAFT_RADIOS = [
+  'role','q-trainer-3',
+  'q-class-1','q-class-2','q-class-3','q-class-4','q-class-5',
+  'q-train-1','q-train-2','q-train-3',
+  'q-lifestyle-1','q-prayer-2',
+  'q-trainer-1','q-trainer-2'
+];
+
+function saveDraft(silent) {
+  const draft = {};
+  DRAFT_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) draft[id] = el.value;
+  });
+  DRAFT_RADIOS.forEach(name => {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    if (el) draft['radio_' + name] = el.value;
+  });
+
+  // 아무것도 입력 안 됐으면 저장 안 함
+  const hasData = DRAFT_FIELDS.some(id => draft[id] && draft[id].trim());
+  if (!hasData) return;
+
+  draft._savedAt = new Date().toLocaleString('ko-KR');
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+
+  if (!silent) {
+    updateAutoSaveBar(draft._savedAt);
+    showToast('💾 자동저장되었습니다.', 'success');
+  } else {
+    updateAutoSaveBar(draft._savedAt);
+  }
+}
+
+function loadDraft() {
+  const raw = localStorage.getItem(DRAFT_KEY);
+  if (!raw) return;
+  const draft = JSON.parse(raw);
+  DRAFT_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el && draft[id] !== undefined) el.value = draft[id];
+  });
+  DRAFT_RADIOS.forEach(name => {
+    const val = draft['radio_' + name];
+    if (val) {
+      const el = document.querySelector(`input[name="${name}"][value="${val}"]`);
+      if (el) el.checked = true;
+    }
+  });
+  showToast('📂 저장된 내용을 불러왔습니다.', 'success');
+}
+
+function deleteDraft() {
+  localStorage.removeItem(DRAFT_KEY);
+  document.getElementById('autoSaveBar').style.display = 'none';
+  showToast('🗑 임시저장이 삭제되었습니다.', '');
+}
+
+function updateAutoSaveBar(savedAt) {
+  const bar = document.getElementById('autoSaveBar');
+  bar.style.display = 'flex';
+  document.getElementById('autoSaveMsg').textContent = `💾 자동저장됨 · ${savedAt}`;
+}
+
+function startAutoSave() {
+  // 30초마다 자동저장
+  setInterval(() => saveDraft(true), 30000);
+
+  // 입력 시마다 3초 후 저장 (디바운스)
+  let timer;
+  document.getElementById('surveyForm').addEventListener('input', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => saveDraft(true), 3000);
+  });
+  document.getElementById('surveyForm').addEventListener('change', () => {
+    clearTimeout(timer);
+    timer = setTimeout(() => saveDraft(true), 3000);
+  });
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+   ══════════════════════════════════════════════ */
+(function init() {
+  buildRatingGroup(classQuestions, 'class-ratings');
+  buildRatingGroup(trainingQuestions, 'training-ratings');
+  buildNumbers('q-lifestyle-1', 'q-lifestyle-1', '무장되지 않았다', '잘무장되었다');
+  buildRatingGroup(trainerQuestions, 'trainer-ratings');
+  buildNumbers('q-prayer-2', 'q-prayer-2', '유익을 못 주었다', '큰 유익을 주었다');
+
+  // 오늘 날짜 기본값
+  document.getElementById('date').value = todayLocal();
+
+  // 기존 임시저장본 확인
+  const raw = localStorage.getItem(DRAFT_KEY);
+  if (raw) {
+    const draft = JSON.parse(raw);
+    updateAutoSaveBar(draft._savedAt);
+  }
+
+  // 자동저장 시작
+  startAutoSave();
+})();
+</script>
+</body>
+</html>
