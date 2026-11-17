@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta name="app-version" content="v2.2 (2026-11-17)">
+<meta name="app-version" content="v2.3 (2026-11-17)">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -369,6 +369,33 @@
   .admin-header h2 {
     font-family: 'Noto Serif KR', serif; font-size: 1.3rem; color: var(--primary);
   }
+  /* ─── 관리자 화면 재배치 (모바일 우선) ─── */
+  .admin-header { display:block; margin-bottom:14px; }
+  .admin-header h2 { margin-bottom:10px; }
+  .admin-actions { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:6px; }
+  .admin-actions select, .admin-actions .btn-sm { width:100%; min-width:0; padding:9px 2px; font-size:0.78rem; white-space:nowrap; text-align:center; }
+  .stat-grid { grid-template-columns:repeat(5,1fr); gap:6px; margin-bottom:14px; }
+  .stat-card { padding:10px 2px; min-width:0; }
+  .stat-card .stat-num { font-size:1.35rem; }
+  .stat-card .stat-lbl { font-size:0.62rem; line-height:1.25; margin-top:3px; }
+  .avg-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-bottom:14px; }
+  .avg-item { background:var(--section-bg); border:1px solid var(--border); border-radius:8px; padding:8px 2px; text-align:center; min-width:0; }
+  .avg-v { font-size:1.15rem; font-weight:700; color:var(--primary); }
+  .avg-l { font-size:0.64rem; color:var(--text-muted); margin-top:2px; white-space:nowrap; }
+  .filter-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:14px; }
+  .filter-grid select { width:100%; min-width:0; padding:8px 4px; border:1.5px solid var(--border); border-radius:6px; font-family:inherit; font-size:0.8rem; }
+  .filter-count { grid-column:1 / -1; font-size:0.8rem; color:var(--text-muted); }
+  @media (min-width:700px) {
+    .admin-header { display:flex; justify-content:space-between; align-items:center; }
+    .admin-header h2 { margin-bottom:0; }
+    .admin-actions { display:flex; gap:8px; }
+    .admin-actions select, .admin-actions .btn-sm { width:auto; padding:8px 16px; font-size:0.85rem; }
+    .stat-card .stat-num { font-size:2rem; } .stat-card .stat-lbl { font-size:0.78rem; }
+    .avg-grid { grid-template-columns:repeat(8,1fr); }
+    .filter-grid { grid-template-columns:repeat(3,160px) 1fr; align-items:center; }
+    .filter-count { grid-column:auto; }
+  }
+
   .btn-sm {
     padding: 8px 16px; border-radius: 6px; border: none;
     font-family: inherit; font-size: 0.85rem; font-weight: 500;
@@ -713,7 +740,7 @@
   <div class="card">
     <div class="admin-header">
       <h2>📊 응답 현황</h2>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <div class="admin-actions">
         <select id="adminCohort" onchange="loadAdminData()" style="padding:6px 10px;border:1.5px solid var(--primary);border-radius:6px;font-family:inherit;font-size:0.85rem;color:var(--primary)">
           <option value="61기">61기</option>
           <option value="62기" selected>62기</option>
@@ -721,7 +748,7 @@
           <option value="64기">64기</option>
         </select>
         <button class="btn-sm btn-outline" onclick="loadAdminData()">🔄 새로고침</button>
-        <button class="btn-sm btn-outline" onclick="exportCSV()">⬇ CSV 내보내기</button>
+        <button class="btn-sm btn-outline" onclick="exportCSV()">⬇ CSV</button>
         <button class="btn-sm btn-danger" onclick="adminLogout()">로그아웃</button>
       </div>
     </div>
@@ -1153,21 +1180,20 @@ function renderAdminDashboard(rows) {
     class_4:'연습시간', class_5:'공개보고',
     train_1:'전도자무장', train_2:'팀원관계', train_3:'현장실습'
   };
-  let avgHtml = '<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px">';
+  let avgHtml = '<div class="avg-grid">';
   Object.entries(rKeys).forEach(([k,lbl]) => {
     const vals = rows.map(r=>parseFloat(r[k])).filter(v=>!isNaN(v)&&v>0);
     const avg  = vals.length ? (vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1) : '-';
-    avgHtml += `<div style="background:var(--section-bg);border-radius:8px;padding:8px 14px;
-      border:1px solid var(--border);text-align:center;min-width:80px">
-      <div style="font-size:1.3rem;font-weight:700;color:var(--primary)">${avg}</div>
-      <div style="font-size:0.7rem;color:var(--text-muted)">${lbl}</div>
+    avgHtml += `<div class="avg-item">
+      <div class="avg-v">${avg}</div>
+      <div class="avg-l">${lbl}</div>
     </div>`;
   });
   avgHtml += '</div>';
 
   // ── 필터 ──
   const filterHtml = `
-    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+    <div class="filter-grid">
       <select id="fStage" onchange="applyFilter()" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.83rem">
         <option value="">전체 단계</option>
         ${['1단계','2단계','3단계','4단계','5단계'].map(v=>`<option>${v}</option>`).join('')}
@@ -1180,7 +1206,7 @@ function renderAdminDashboard(rows) {
         <option value="">전체 역할</option>
         <option>훈련생</option><option>훈련자</option>
       </select>
-      <span id="fCount" style="font-size:0.82rem;color:var(--text-muted)"></span>
+      <span id="fCount" class="filter-count"></span>
     </div>`;
 
   document.getElementById('adminExtra').innerHTML = avgHtml + filterHtml;
@@ -1405,6 +1431,6 @@ function startAutoSave() {
   load();
 })();
 </script>
-<div id="app-version" style="position:fixed;right:6px;bottom:4px;font-size:10px;color:#999;opacity:.7;pointer-events:none;z-index:9999">v2.2 (2026-11-17)</div>
+<div id="app-version" style="position:fixed;right:6px;bottom:4px;font-size:10px;color:#999;opacity:.7;pointer-events:none;z-index:9999">v2.3 (2026-11-17)</div>
 </body>
 </html>
