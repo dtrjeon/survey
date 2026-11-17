@@ -17,6 +17,7 @@ var SHEET_SUFFIX = '_평가표응답';
 var COHORTS = ['61기', '62기', '63기', '64기'];   // 허용 기수
 var DEFAULT_COHORT_GET = '61기';                  // 조회 시 cohort 파라미터가 없을 때(기존 대시보드 호환)
 var DEFAULT_COHORT_POST = '62기';                 // 제출 시 cohort 가 없을 때
+var GROUPS_SUFFIX = '_조원리스트';                 // 기수별 조원 목록 탭 (자동 생성): 조 | 조원1 | 조원2 | ...
 var TOTALS_SHEET = '총원설정';                      // 기수별 단계별 총원을 저장하는 탭 (자동 생성)
 
 // payload 키 → 시트 1행 한글 헤더
@@ -102,6 +103,13 @@ function doPost(e) {
 function doGet(e) {
   var cb = (e && e.parameter && e.parameter.callback) || '';
   try {
+    // 조원 목록 (설문 폼의 '조 선택'용, 비밀번호 불필요): ?action=groups&cohort=62기
+    if (e && e.parameter && e.parameter.action === 'groups') {
+      var gc = e.parameter.cohort || DEFAULT_COHORT_POST;
+      if (COHORTS.indexOf(gc) < 0) return out_({ error: '허용되지 않은 기수입니다: ' + gc }, cb);
+      return out_({ cohort: gc, groups: getGroups_(gc) }, cb);
+    }
+
     var pw = (e && e.parameter && e.parameter.pw) || '';
     var saved = PropertiesService.getScriptProperties().getProperty('ADMIN_PASSWORD');
 
@@ -169,6 +177,37 @@ function getSheet_(cohort, create) {
     sheet.setFrozenRows(1);
   }
   return sheet;   // create=false 이고 탭이 없으면 null
+}
+
+// ── 기수별 조원 목록 (탭 "{기수}_조원리스트": 조 | 조원1 | 조원2 | ...) ──
+function getGroups_(cohort) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var name = cohort + GROUPS_SUFFIX;
+  var sh = ss.getSheetByName(name);
+  if (!sh) {                                   // 없으면 빈 양식 자동 생성 (1~11조)
+    sh = ss.insertSheet(name);
+    sh.getRange(1, 1, 1, 4).setValues([['조', '조원1', '조원2', '조원3']])
+      .setFontWeight('bold').setBackground('#EEF3F9');
+    var rows = [];
+    for (var i = 1; i <= 11; i++) rows.push([i + '조']);
+    sh.getRange(2, 1, rows.length, 1).setNumberFormat('@').setValues(rows);
+    sh.setFrozenRows(1);
+    return [];
+  }
+  var lastR = sh.getLastRow(), lastC = sh.getLastColumn();
+  if (lastR < 2 || lastC < 1) return [];
+  var vals = sh.getRange(2, 1, lastR - 1, lastC).getValues();
+  var out = [];
+  vals.forEach(function (row) {
+    var g = String(row[0]).trim();
+    if (!g) return;
+    if (/^\d+$/.test(g)) g += '조';            // '1' → '1조'
+    var members = row.slice(1).map(function (v) { return String(v).trim(); })
+      .filter(function (v) { return v; });
+    out.push({ group: g, members: members });
+  });
+  out.sort(function (a, b) { return (parseInt(a.group, 10) || 999) - (parseInt(b.group, 10) || 999); });
+  return out;
 }
 
 // ── 기수별 단계별 총원 (탭 "총원설정": 기수 | 1단계 | 2단계 | 3단계 | 4단계 | 5단계) ──
