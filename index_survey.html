@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta name="app-version" content="v3.0 (2026-11-23)">
+<meta name="app-version" content="v3.1 (2026-11-23)">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1569,6 +1569,32 @@ function startAutoSave() {
   load();
 })();
 </script>
-<div id="app-version" style="position:fixed;right:6px;bottom:4px;font-size:10px;color:#999;opacity:.7;pointer-events:none;z-index:9999">v3.0 (2026-11-23)</div>
+<script>
+/* ─── 글상자 자동 늘어남: 입력한 만큼 높이가 커지고, 기본 높이보다는 작아지지 않음 ─── */
+(function () {
+  function grow(el) {
+    if (!el || el.tagName !== 'TEXTAREA' || !el.offsetParent) return;
+    if (!el._minH) el._minH = el.offsetHeight;
+    el.style.overflowY = 'hidden';
+    el.style.height = 'auto';
+    var border = el.offsetHeight - el.clientHeight;
+    el.style.height = Math.max(el._minH, el.scrollHeight + border) + 'px';
+  }
+  function growAll() { document.querySelectorAll('#surveyForm textarea').forEach(grow); }
+  document.addEventListener('input', function (e) { grow(e.target); });
+  document.getElementById('surveyForm').addEventListener('reset', function () {
+    document.querySelectorAll('#surveyForm textarea').forEach(function (t) { t.style.height = ''; t._minH = 0; });
+    setTimeout(growAll, 0);
+  });
+  // 불러오기(수정)·임시저장 복원으로 내용이 채워질 때도 높이 맞춤
+  ['fillFromRow', 'loadDraft'].forEach(function (n) {
+    var f = window[n];
+    if (typeof f !== 'function') return;
+    window[n] = function () { var r = f.apply(this, arguments); setTimeout(growAll, 0); return r; };
+  });
+  window.addEventListener('load', growAll);
+})();
+</script>
+<div id="app-version" style="position:fixed;right:6px;bottom:4px;font-size:10px;color:#999;opacity:.7;pointer-events:none;z-index:9999">v3.1 (2026-11-23)</div>
 </body>
 </html>
