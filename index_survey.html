@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta name="app-version" content="v3.1 (2026-11-23)">
+<meta name="app-version" content="v3.2 (2026-11-23)">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1592,9 +1592,35 @@ function startAutoSave() {
     if (typeof f !== 'function') return;
     window[n] = function () { var r = f.apply(this, arguments); setTimeout(growAll, 0); return r; };
   });
+  // 각 글상자 아래에 ＋ / － 버튼: 누를 때마다 높이 조절 (손가락으로 끌기 어려운 모바일용)
+  var STEP = 80, MIN_H = 60;
+  function resize(el, delta) {
+    var cur = el.offsetHeight;
+    var h = Math.max(MIN_H, cur + delta);
+    el._minH = h;
+    el.style.overflowY = 'auto';
+    el.style.height = h + 'px';
+  }
+  function mkBtn(label, title, fn) {
+    var b = document.createElement('button');
+    b.type = 'button'; b.textContent = label; b.title = title; b.setAttribute('aria-label', title);
+    b.style.cssText = 'width:38px;height:34px;margin-left:6px;border:1.5px solid var(--primary-light);border-radius:8px;' +
+      'background:#fff;color:var(--primary);font-size:1.15rem;font-weight:700;line-height:1;cursor:pointer;' +
+      '-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-appearance:none;';
+    b.addEventListener('click', fn);
+    return b;
+  }
+  document.querySelectorAll('#surveyForm textarea').forEach(function (t) {
+    var bar = document.createElement('div');
+    bar.style.cssText = 'text-align:right;margin-top:6px;';
+    bar.appendChild(mkBtn('＋', '글상자 키우기', function () { resize(t, STEP); }));
+    bar.appendChild(mkBtn('－', '글상자 줄이기', function () { resize(t, -STEP); }));
+    t.insertAdjacentElement('afterend', bar);
+  });
+
   window.addEventListener('load', growAll);
 })();
 </script>
-<div id="app-version" style="position:fixed;right:6px;bottom:4px;font-size:10px;color:#999;opacity:.7;pointer-events:none;z-index:9999">v3.1 (2026-11-23)</div>
+<div id="app-version" style="position:fixed;right:6px;bottom:4px;font-size:10px;color:#999;opacity:.7;pointer-events:none;z-index:9999">v3.2 (2026-11-23)</div>
 </body>
 </html>
