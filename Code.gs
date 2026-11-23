@@ -104,11 +104,11 @@ function doPost(e) {
       }
     });
 
-    // 같은 이름+날짜 응답이 이미 있으면 그 행을 덮어쓰고(수정), 없으면 새 행으로 추가
+    // 같은 기수에 같은 이름의 응답이 이미 있으면 그 행을 덮어쓰고(수정), 없으면 새 행으로 추가
     var pinCol = idx[PIN_HEADER];
     var newHash = hashPin_(cohort, data.name, pin);
     row[pinCol] = newHash;
-    var target = findRow_(sheet, idx, data.name, data.date);
+    var target = findRow_(sheet, idx, data.name);
     var updated = target > 0;
     if (updated) {
       if (isLocked_(cohort, data.name)) {
@@ -203,17 +203,15 @@ function cellDate_(v, tz) {
   return (v instanceof Date) ? Utilities.formatDate(v, tz, 'yyyy-MM-dd') : String(v).trim();
 }
 
-// 이름+날짜가 같은 가장 최근 행 번호(1부터). 없으면 0
-function findRow_(sheet, idx, name, date) {
+// 이름이 같은 가장 최근 행 번호(1부터). 없으면 0 (기수 탭 안에서 이름당 응답 1개)
+function findRow_(sheet, idx, name) {
   var last = sheet.getLastRow();
-  var ni = idx[COLS.name], di = idx[COLS.date];
-  if (last < 2 || ni === undefined || di === undefined) return 0;
+  var ni = idx[COLS.name];
+  if (last < 2 || ni === undefined) return 0;
   var vals = sheet.getRange(2, 1, last - 1, sheet.getLastColumn()).getValues();
-  var tz = Session.getScriptTimeZone();
-  var nm = String(name).trim(), dt = String(date || '').trim();
+  var nm = String(name).trim();
   for (var r = vals.length - 1; r >= 0; r--) {
-    if (String(vals[r][ni]).trim() !== nm) continue;
-    if (cellDate_(vals[r][di], tz) === dt) return r + 2;
+    if (String(vals[r][ni]).trim() === nm) return r + 2;
   }
   return 0;
 }

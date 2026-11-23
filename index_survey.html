@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta name="app-version" content="v2.9 (2026-11-23)">
+<meta name="app-version" content="v3.0 (2026-11-23)">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -463,10 +463,7 @@
           box-shadow:0 8px 24px rgba(45,90,142,0.18);
         "></ul>
       </div>
-      <div class="form-group">
-        <label>날짜</label>
-        <input type="date" id="date" required>
-      </div>
+      <input type="hidden" id="date">   <!-- 제출 시점의 오늘 날짜가 자동 기록됨 -->
     </div>
     <div style="margin:-6px 0 16px">
       <div style="margin-bottom:12px;padding:12px 14px;background:var(--section-bg);border-radius:8px;border-left:4px solid var(--accent);font-size:0.85rem;line-height:1.75;color:var(--text)">
@@ -1000,9 +997,10 @@ document.getElementById('surveyForm').addEventListener('submit', async function(
     return;
   }
 
-  const dupKey = document.getElementById('cohort').value + '|' + document.getElementById('name').value.trim() + '|' + document.getElementById('date').value;
+  document.getElementById('date').value = todayLocal();   // 날짜는 제출 시점으로 자동 기록
+  const dupKey = document.getElementById('cohort').value + '|' + document.getElementById('name').value.trim();
   const done = JSON.parse(localStorage.getItem('ee_submitted') || '[]');
-  if (!editMode && done.includes(dupKey) && !confirm('이 기기에서 같은 이름·날짜로 이미 제출했습니다. 다시 제출하면 기존 응답이 새 내용으로 덮어써집니다. 계속할까요?')) return;
+  if (!editMode && done.includes(dupKey) && !confirm('이 기기에서 같은 이름으로 이미 제출했습니다. 다시 제출하면 기존 응답이 새 내용으로 덮어써집니다. 계속할까요?')) return;
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
@@ -1331,7 +1329,7 @@ function setEditMode(d, legacy) {
   const b = document.getElementById('editBanner');
   if (d) {
     b.style.display = 'block';
-    b.textContent = '✏️ 수정 모드 — ' + d + ' 제출분을 불러왔습니다. 제출하면 기존 응답이 덮어써집니다. (이름·날짜를 바꾸면 새 응답으로 저장됩니다.)' +
+    b.textContent = '✏️ 수정 모드 — ' + d + ' 제출분을 불러왔습니다. 제출하면 기존 응답이 덮어써집니다. (이름을 바꾸면 새 응답으로 저장됩니다.)' +
       (legacy ? ' 이전에 제출한 응답이라 확인번호가 없습니다. 위 확인번호 칸에 번호를 입력하고 제출하면 그 번호가 등록됩니다.' : '');
   } else {
     b.style.display = 'none';
@@ -1571,6 +1569,6 @@ function startAutoSave() {
   load();
 })();
 </script>
-<div id="app-version" style="position:fixed;right:6px;bottom:4px;font-size:10px;color:#999;opacity:.7;pointer-events:none;z-index:9999">v2.9 (2026-11-23)</div>
+<div id="app-version" style="position:fixed;right:6px;bottom:4px;font-size:10px;color:#999;opacity:.7;pointer-events:none;z-index:9999">v3.0 (2026-11-23)</div>
 </body>
 </html>
