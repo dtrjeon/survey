@@ -245,6 +245,13 @@ function addFail_(cohort, name) {
 }
 function clearFail_(cohort, name) { CacheService.getScriptCache().remove(failKey_(cohort, name)); }
 
+// 이름 일치: 정확히 같거나, 입력값 뒤에 식별기호(영문 1~3자)만 더 붙은 경우 (예: '최창숙' ↔ '최창숙A')
+function nameMatch_(cell, name) {
+  var c = String(cell).trim();
+  if (c === name) return true;
+  return c.indexOf(name) === 0 && /^[A-Za-z]{1,3}$/.test(c.substring(name.length));
+}
+
 // 해당 이름의 제출 목록(최신순, 최대 10건). 확인번호가 등록된 응답은 번호가 맞아야 반환, 번호 없는 기존 응답은 그대로 반환(_legacy)
 function mineResult_(cohort, name, pin) {
   if (!name) return { error: '이름을 입력하세요.' };
@@ -260,13 +267,16 @@ function mineResult_(cohort, name, pin) {
   var ni = headers.indexOf(COLS.name);
   var pi = headers.indexOf(PIN_HEADER);
   if (ni < 0) return { rows: [] };
-  var want = /^\d{4}$/.test(pin) ? hashPin_(cohort, name, pin) : '';
+  var pinOk = /^\d{4}$/.test(pin);
+  var anyWant = false;
   var tz = Session.getScriptTimeZone();
   var out = [], denied = 0;
   for (var r = values.length - 1; r >= 1 && out.length < 10; r--) {
-    if (String(values[r][ni]).trim() !== name) continue;
+    if (!nameMatch_(values[r][ni], name)) continue;
     var stored = pi >= 0 ? String(values[r][pi]).trim() : '';
+    var want = pinOk ? hashPin_(cohort, String(values[r][ni]).trim(), pin) : '';
     if (stored && stored !== want) { denied++; continue; }
+    if (stored) anyWant = true;
     var o = {};
     for (var c = 0; c < headers.length; c++) {
       var key = rev[headers[c]];
@@ -279,10 +289,10 @@ function mineResult_(cohort, name, pin) {
     out.push(o);
   }
   if (!out.length && denied) {
-    if (want) { addFail_(cohort, name); return { error: '확인번호가 일치하지 않습니다.' }; }
+    if (pinOk) { addFail_(cohort, name); return { error: '확인번호가 일치하지 않습니다.' }; }
     return { error: '확인번호(전화번호 뒤 4자리)를 입력한 뒤 다시 눌러주세요.' };
   }
-  if (out.length && want) clearFail_(cohort, name);
+  if (out.length && anyWant) clearFail_(cohort, name);
   return { rows: out };
 }
 
