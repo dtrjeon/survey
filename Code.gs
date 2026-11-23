@@ -1,5 +1,7 @@
 /**
  * 전도폭발 사역 평가표 - Google Apps Script 백엔드 (폼 + 대시보드 겸용)
+ * v2.5: 제출 수정 지원 (같은 이름+날짜 재제출 시 덮어쓰기, 수정용 확인번호=전화번호 뒤4자리(해시 저장),
+ *       기존(확인번호 없는) 응답은 번호 없이 불러온 뒤 제출 시 번호 등록, 5회 오입력 시 10분 잠금)
  *
  * 시트: 수지주일반_전도폭발사역평가표 / 탭: 61기_평가표응답
  *  - 시트 1행의 "한글 헤더"를 기준으로 열을 찾아 저장하므로 열 순서가 바뀌어도 안전합니다.
@@ -49,6 +51,9 @@ var NUMERIC = {
 };
 
 var MAX_LEN = 2000;
+var PIN_HEADER = '수정PIN';      // 확인번호 해시 저장 열 (없으면 자동 생성, 대시보드에는 노출되지 않음)
+var PIN_MAX_FAIL = 5;            // 오입력 허용 횟수
+var PIN_LOCK_SEC = 600;          // 초과 시 잠금 시간(초)
 
 /* ───────── 제출 (POST) ───────── */
 function doPost(e) {
@@ -56,6 +61,13 @@ function doPost(e) {
   try {
     lock.waitLock(20000);
     var data = JSON.parse((e && e.postData && e.postData.contents) || '{}');
+
+    // 내 제출 불러오기 (PIN이 URL에 남지 않도록 POST 사용)
+    if (data.action === 'mine') {
+      var mc = data.cohort || DEFAULT_COHORT_POST;
+      if (COHORTS.indexOf(mc) < 0) return json_({ error: '허용되지 않은 기수입니다: ' + mc });
+      return json_(mineResult_(mc, String(data.name || '').trim(), String(data.pin || '').trim()));
+    }
 
     if (!data.name || !data.stage || !data.group) {
       return json_({ success: false, error: '필수 항목(이름/단계/조)이 없습니다.' });
@@ -65,7 +77,12 @@ function doPost(e) {
     if (COHORTS.indexOf(cohort) < 0) {
       return json_({ success: false, error: '허용되지 않은 기수입니다: ' + cohort });
     }
+    var pin = String(data.pin || '').trim();
+    if (!/^\d{4}$/.test(pin)) {
+      return json_({ success: false, error: '확인번호(전화번호 뒤 4자리)를 입력하세요.' });
+    }
     var sheet = getSheet_(cohort, true);   // 탭이 없으면 헤더와 함께 자동 생성
+    ensurePinCol_(sheet);
     var headers = sheet.getRange(1, 1, 1, Math.max(sheet.getLastColumn(), 1)).getValues()[0];
     var idx = {};                       // 헤더명 → 열 번호(0부터)
     headers.forEach(function (h, i) { idx[String(h).trim()] = i; });
@@ -87,11 +104,28 @@ function doPost(e) {
       }
     });
 
-    var next = sheet.getLastRow() + 1;
-    var range = sheet.getRange(next, 1, 1, headers.length);
-    range.setNumberFormats([fmt]).setValues([row]);
+    // 같은 이름+날짜 응답이 이미 있으면 그 행을 덮어쓰고(수정), 없으면 새 행으로 추가
+    var pinCol = idx[PIN_HEADER];
+    var newHash = hashPin_(cohort, data.name, pin);
+    row[pinCol] = newHash;
+    var target = findRow_(sheet, idx, data.name, data.date);
+    var updated = target > 0;
+    if (updated) {
+      if (isLocked_(cohort, data.name)) {
+        return json_({ success: false, error: '확인번호를 여러 번 틀렸습니다. 10분 후 다시 시도하세요.' });
+      }
+      var stored = String(sheet.getRange(target, pinCol + 1).getValue()).trim();
+      if (stored && stored !== newHash) {     // 기존 응답에 번호가 있으면 일치해야 덮어쓰기 가능
+        addFail_(cohort, data.name);
+        return json_({ success: false, error: '확인번호가 일치하지 않습니다.' });
+      }
+      clearFail_(cohort, data.name);
+    } else {
+      target = sheet.getLastRow() + 1;
+    }
+    sheet.getRange(target, 1, 1, headers.length).setNumberFormats([fmt]).setValues([row]);
 
-    return json_({ success: true });
+    return json_({ success: true, updated: updated });
   } catch (err) {
     return json_({ success: false, error: String(err) });
   } finally {
@@ -165,6 +199,93 @@ function doGet(e) {
 }
 
 /* ───────── 도우미 ───────── */
+function cellDate_(v, tz) {
+  return (v instanceof Date) ? Utilities.formatDate(v, tz, 'yyyy-MM-dd') : String(v).trim();
+}
+
+// 이름+날짜가 같은 가장 최근 행 번호(1부터). 없으면 0
+function findRow_(sheet, idx, name, date) {
+  var last = sheet.getLastRow();
+  var ni = idx[COLS.name], di = idx[COLS.date];
+  if (last < 2 || ni === undefined || di === undefined) return 0;
+  var vals = sheet.getRange(2, 1, last - 1, sheet.getLastColumn()).getValues();
+  var tz = Session.getScriptTimeZone();
+  var nm = String(name).trim(), dt = String(date || '').trim();
+  for (var r = vals.length - 1; r >= 0; r--) {
+    if (String(vals[r][ni]).trim() !== nm) continue;
+    if (cellDate_(vals[r][di], tz) === dt) return r + 2;
+  }
+  return 0;
+}
+
+// ── 확인번호(전화번호 뒤 4자리) ──
+function hashPin_(cohort, name, pin) {
+  var raw = cohort + '|' + String(name).trim() + '|' + String(pin).trim() + '|EE-PIN';
+  var bytes = Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, raw, Utilities.Charset.UTF_8);
+  return bytes.map(function (b) { return ('0' + (b & 0xff).toString(16)).slice(-2); }).join('');
+}
+
+// '수정PIN' 열이 없으면 맨 끝에 추가, 열 번호(0부터) 반환
+function ensurePinCol_(sheet) {
+  var lc = Math.max(sheet.getLastColumn(), 1);
+  var hs = sheet.getRange(1, 1, 1, lc).getValues()[0].map(function (h) { return String(h).trim(); });
+  var i = hs.indexOf(PIN_HEADER);
+  if (i >= 0) return i;
+  sheet.getRange(1, lc + 1).setValue(PIN_HEADER).setFontWeight('bold').setBackground('#EEF3F9');
+  return lc;
+}
+
+function failKey_(cohort, name) { return 'pinfail|' + cohort + '|' + String(name).trim(); }
+function isLocked_(cohort, name) {
+  return Number(CacheService.getScriptCache().get(failKey_(cohort, name)) || 0) >= PIN_MAX_FAIL;
+}
+function addFail_(cohort, name) {
+  var c = CacheService.getScriptCache(), k = failKey_(cohort, name);
+  c.put(k, String(Number(c.get(k) || 0) + 1), PIN_LOCK_SEC);
+}
+function clearFail_(cohort, name) { CacheService.getScriptCache().remove(failKey_(cohort, name)); }
+
+// 해당 이름의 제출 목록(최신순, 최대 10건). 확인번호가 등록된 응답은 번호가 맞아야 반환, 번호 없는 기존 응답은 그대로 반환(_legacy)
+function mineResult_(cohort, name, pin) {
+  if (!name) return { error: '이름을 입력하세요.' };
+  if (isLocked_(cohort, name)) return { error: '확인번호를 여러 번 틀렸습니다. 10분 후 다시 시도하세요.' };
+  var sheet = getSheet_(cohort, false);
+  if (!sheet) return { rows: [] };
+  var last = sheet.getLastRow(), lastCol = sheet.getLastColumn();
+  if (last < 2) return { rows: [] };
+  var values = sheet.getRange(1, 1, last, lastCol).getValues();
+  var headers = values[0].map(function (h) { return String(h).trim(); });
+  var rev = {};
+  Object.keys(COLS).forEach(function (k) { rev[COLS[k]] = k; });
+  var ni = headers.indexOf(COLS.name);
+  var pi = headers.indexOf(PIN_HEADER);
+  if (ni < 0) return { rows: [] };
+  var want = /^\d{4}$/.test(pin) ? hashPin_(cohort, name, pin) : '';
+  var tz = Session.getScriptTimeZone();
+  var out = [], denied = 0;
+  for (var r = values.length - 1; r >= 1 && out.length < 10; r--) {
+    if (String(values[r][ni]).trim() !== name) continue;
+    var stored = pi >= 0 ? String(values[r][pi]).trim() : '';
+    if (stored && stored !== want) { denied++; continue; }
+    var o = {};
+    for (var c = 0; c < headers.length; c++) {
+      var key = rev[headers[c]];
+      if (!key) continue;
+      var v = values[r][c];
+      if (v instanceof Date) v = Utilities.formatDate(v, tz, key === 'date' ? 'yyyy-MM-dd' : 'yyyy. M. d. a h:mm:ss');
+      o[key] = v;
+    }
+    o._legacy = !stored;
+    out.push(o);
+  }
+  if (!out.length && denied) {
+    if (want) { addFail_(cohort, name); return { error: '확인번호가 일치하지 않습니다.' }; }
+    return { error: '확인번호(전화번호 뒤 4자리)를 입력한 뒤 다시 눌러주세요.' };
+  }
+  if (out.length && want) clearFail_(cohort, name);
+  return { rows: out };
+}
+
 function getSheet_(cohort, create) {
   var name = cohort + SHEET_SUFFIX;
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -172,6 +293,7 @@ function getSheet_(cohort, create) {
   if (!sheet && create) {
     sheet = ss.insertSheet(name);
     var heads = Object.keys(COLS).map(function (k) { return COLS[k]; });
+    heads.push(PIN_HEADER);
     sheet.getRange(1, 1, 1, heads.length).setValues([heads])
       .setFontWeight('bold').setBackground('#EEF3F9');
     sheet.setFrozenRows(1);

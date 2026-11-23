@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta name="app-version" content="v2.3 (2026-11-17)">
+<meta name="app-version" content="v2.5 (2026-11-23)">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -418,6 +418,14 @@
   .badge-trainer { background: #D1FAE5; color: #065F46; }
 
 
+  #toast { white-space: normal; width: max-content; max-width: 90vw; text-align: center; }
+  .form-group input[type=password], #pin {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+    font-family: inherit; font-size: 16px; background: #FAFAF8; outline: none; color: var(--text);
+    -webkit-appearance: none; appearance: none;
+  }
+  #pin { -webkit-text-security: disc; letter-spacing: 6px; }
+  .form-group input[type=password]:focus, #pin:focus { border-color: var(--primary-light); box-shadow: 0 0 0 3px rgba(74,122,181,0.15); }
 </style>
 </head>
 <body>
@@ -459,6 +467,16 @@
         <label>날짜</label>
         <input type="date" id="date" required>
       </div>
+    </div>
+    <div style="margin:-6px 0 16px">
+      <div class="form-group" style="margin-bottom:10px">
+        <label>수정용 확인번호 (전화번호 뒤 4자리)</label>
+        <input type="tel" id="pin" inputmode="numeric" maxlength="4" pattern="[0-9]{4}" placeholder="0000" autocomplete="off" required>
+        <p style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;line-height:1.5">제출 후 내용을 수정할 때 필요합니다. 새로 제출할 땐 꼭 입력하세요.</p>
+      </div>
+      <button type="button" class="btn-sm btn-outline" id="loadMineBtn" onclick="loadMine()" style="width:100%;padding:10px">📂 내 제출 불러오기 (수정)</button>
+      <div id="mineList" style="display:none;margin-top:8px"></div>
+      <div id="editBanner" style="display:none;margin-top:8px;padding:10px 14px;background:#FFF7ED;border:1.5px solid #FDBA74;border-radius:8px;font-size:0.83rem;color:#9A3412;line-height:1.6"></div>
     </div>
     <div class="form-row" style="flex-wrap:wrap; gap:12px; margin-bottom:16px">
       <div class="form-group" style="flex:0 0 110px; min-width:0">
@@ -968,9 +986,15 @@ document.getElementById('surveyForm').addEventListener('submit', async function(
     return;
   }
 
+  if (!/^\d{4}$/.test(document.getElementById('pin').value.trim())) {
+    showToast('확인번호(전화번호 뒤 4자리)를 입력해 주세요.', 'error');
+    document.getElementById('pin').focus();
+    return;
+  }
+
   const dupKey = document.getElementById('cohort').value + '|' + document.getElementById('name').value.trim() + '|' + document.getElementById('date').value;
   const done = JSON.parse(localStorage.getItem('ee_submitted') || '[]');
-  if (done.includes(dupKey) && !confirm('이 기기에서 같은 이름·날짜로 이미 제출했습니다. 다시 제출할까요?')) return;
+  if (!editMode && done.includes(dupKey) && !confirm('이 기기에서 같은 이름·날짜로 이미 제출했습니다. 다시 제출하면 기존 응답이 새 내용으로 덮어써집니다. 계속할까요?')) return;
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
@@ -985,6 +1009,7 @@ document.getElementById('surveyForm').addEventListener('submit', async function(
     name: document.getElementById('name').value,
     date: document.getElementById('date').value,
     role: getRating('role'),
+    pin: document.getElementById('pin').value.trim(),
     // 교실수업
     class_1: getRating('q-class-1'),
     class_2: getRating('q-class-2'),
@@ -1049,20 +1074,21 @@ document.getElementById('surveyForm').addEventListener('submit', async function(
       method: 'POST',
       body: JSON.stringify(payload)
     });
-    let ok = res.ok;
-    try { const j = await res.json(); if (j && (j.error || j.success === false || j.ok === false)) ok = false; } catch(_) {}
-    if (!ok) throw new Error('서버 응답 오류');
+    let ok = res.ok, updated = false, serverErr = '';
+    try { const j = await res.json(); if (j && (j.error || j.success === false || j.ok === false)) { ok = false; serverErr = j.error || ''; } if (j && j.updated) updated = true; } catch(_) {}
+    if (!ok) { const e2 = new Error(serverErr || '서버 응답 오류'); e2.server = !!serverErr; throw e2; }
     done.push(dupKey);
     localStorage.setItem('ee_submitted', JSON.stringify(done));
     localStorage.removeItem(DRAFT_KEY);
     document.getElementById('autoSaveBar').style.display = 'none';
-    showToast('✅ 설문이 성공적으로 제출되었습니다!', 'success');
+    showToast(updated ? '✅ 기존 응답이 수정되었습니다!' : '✅ 설문이 성공적으로 제출되었습니다!', 'success');
+    setEditMode(null);
     this.reset();
     document.getElementById('date').value = todayLocal();
   } catch (err) {
     // 실패 시 폼 내용 유지 + 임시저장
     saveDraft(true);
-    showToast('❌ 제출 확인 실패. 내용은 유지됩니다. 다시 시도해 주세요.', 'error');
+    showToast('❌ ' + (err.server ? err.message : '제출 확인 실패. 내용은 유지됩니다. 다시 시도해 주세요.'), 'error');
   } finally {
     btn.disabled = false;
     btn.textContent = '설문 제출하기';
@@ -1272,6 +1298,112 @@ function exportCSV() {
 /* ══════════════════════════════════════════════
    자동저장 (30초마다 + 입력할 때마다)
    ══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════════
+   내 제출 불러오기 / 수정
+   ══════════════════════════════════════════════ */
+let editMode = null;   // 수정 중인 제출의 날짜(없으면 null)
+let _mineRows = [];
+
+const FIELD_MAP = {
+  lifestyle_2:'q-lifestyle-2', field_1:'q-field-1', field_2:'q-field-2', field_3:'q-field-3', field_4:'q-field-4',
+  field_5a:'q-field-5a', field_5b:'q-field-5b', my_trainer:'my-trainer', trainer_name:'trainer-name',
+  trainer_reason1:'q-trainer-reason1', trainer_reason2:'q-trainer-reason2',
+  prayer_name1:'prayer-1', prayer_name2:'prayer-2', prayer_1:'q-prayer-1',
+  absent:'q-attend-1', absent_reason:'q-attend-2', thanks_1:'q-thanks-1', thanks_2:'q-thanks-2',
+  suggest_1:'q-suggest-1', suggest_2:'q-suggest-2', suggest_3:'q-suggest-3'
+};
+const RADIO_MAP = {
+  role:'role', class_1:'q-class-1', class_2:'q-class-2', class_3:'q-class-3', class_4:'q-class-4', class_5:'q-class-5',
+  train_1:'q-train-1', train_2:'q-train-2', train_3:'q-train-3', lifestyle_1:'q-lifestyle-1', prayer_2:'q-prayer-2',
+  trainer_1:'q-trainer-1', trainer_2:'q-trainer-2', trainer_3:'q-trainer-3'
+};
+
+function setEditMode(d, legacy) {
+  editMode = d;
+  const b = document.getElementById('editBanner');
+  if (d) {
+    b.style.display = 'block';
+    b.textContent = '✏️ 수정 모드 — ' + d + ' 제출분을 불러왔습니다. 제출하면 기존 응답이 덮어써집니다. (이름·날짜를 바꾸면 새 응답으로 저장됩니다.)' +
+      (legacy ? ' 이전에 제출한 응답이라 확인번호가 없습니다. 위 확인번호 칸에 번호를 입력하고 제출하면 그 번호가 등록됩니다.' : '');
+  } else {
+    b.style.display = 'none';
+    b.textContent = '';
+  }
+}
+
+function setSelect(id, val) {
+  const el = document.getElementById(id);
+  if (!el || val === undefined || val === null || val === '') return;
+  el.value = String(val);
+}
+
+function fillFromRow(r) {
+  document.getElementById('name').value = r.name || '';
+  document.getElementById('date').value = r.date || todayLocal();
+  setSelect('class_group', r.class_group);
+  setSelect('stage', r.stage);
+  setSelect('group', r.group);
+
+  Object.keys(FIELD_MAP).forEach(k => {
+    const el = document.getElementById(FIELD_MAP[k]);
+    if (el) el.value = (r[k] === undefined || r[k] === null) ? '' : String(r[k]);
+  });
+  Object.keys(RADIO_MAP).forEach(k => {
+    const name = RADIO_MAP[k];
+    document.querySelectorAll(`input[name="${name}"]`).forEach(i => { i.checked = false; });
+    const v = r[k];
+    if (v === undefined || v === null || v === '') return;
+    const el = document.querySelector(`input[name="${name}"][value="${String(v)}"]`);
+    if (el) el.checked = true;
+  });
+
+  document.getElementById('mineList').style.display = 'none';
+  setEditMode(r.date || '이전', !!r._legacy);
+  if (r._legacy && !document.getElementById('pin').value.trim()) document.getElementById('pin').focus();
+  showToast('📂 제출 내용을 불러왔습니다. 수정 후 제출하세요.', 'success');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showMineList(rows) {
+  _mineRows = rows;
+  const box = document.getElementById('mineList');
+  box.innerHTML = '<p style="font-size:0.83rem;color:var(--text-muted);margin-bottom:6px">수정할 제출을 선택하세요.</p>' +
+    rows.map((r, i) => `
+      <button type="button" class="btn-sm btn-outline" onclick="fillFromRow(_mineRows[${i}])"
+        style="display:block;width:100%;text-align:left;margin-bottom:6px;padding:10px 12px">
+        ${esc(r.date || '-')} · ${esc(r.stage || '')} ${esc(r.group || '')} · ${esc(r.role || '')}
+        <span style="color:var(--text-muted);font-size:0.75rem"> (제출 ${esc(r.timestamp || '')})</span>
+      </button>`).join('');
+  box.style.display = 'block';
+}
+
+async function loadMine() {
+  const name = document.getElementById('name').value.trim();
+  const cohort = document.getElementById('cohort').value;
+  if (!name) { showToast('이름을 먼저 입력하세요.', 'error'); return; }
+  if (CONFIG.APPS_SCRIPT_URL === 'YOUR_APPS_SCRIPT_URL_HERE') { showToast('서버 URL이 설정되지 않았습니다.', 'error'); return; }
+  const btn = document.getElementById('loadMineBtn');
+  btn.disabled = true;
+  try {
+    const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'mine', cohort: cohort, name: name, pin: document.getElementById('pin').value.trim() })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    const rows = data.rows || [];
+    if (!rows.length) { showToast('제출 내역이 없습니다. 기수·이름을 확인하세요.', 'error'); return; }
+    if (rows.length === 1) fillFromRow(rows[0]); else showMineList(rows);
+  } catch (e) {
+    showToast('❌ 불러오기 실패: ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   자동저장 키
+   ══════════════════════════════════════════════ */
 const DRAFT_KEY = 'ee_survey_draft';
 
 const DRAFT_FIELDS = [
@@ -1431,6 +1563,6 @@ function startAutoSave() {
   load();
 })();
 </script>
-<div id="app-version" style="position:fixed;right:6px;bottom:4px;font-size:10px;color:#999;opacity:.7;pointer-events:none;z-index:9999">v2.3 (2026-11-17)</div>
+<div id="app-version" style="position:fixed;right:6px;bottom:4px;font-size:10px;color:#999;opacity:.7;pointer-events:none;z-index:9999">v2.5 (2026-11-23)</div>
 </body>
 </html>
